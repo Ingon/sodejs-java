@@ -40,6 +40,8 @@ public class Main {
 		
 		config.dconfig = new DynamicConfiguration();
 		config.dconfig.pathSpec = "/dyn/*";
+		config.dconfig.loadLocations.add("../sodejs-core/");
+		config.dconfig.loadLocations.add("../fail/dynamic/");
 		
 		config.sconfig = new StaticConfiguration();
 		config.sconfig.base = "../fail/static";
