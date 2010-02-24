@@ -1,5 +1,8 @@
 package org.sodejs;
 
+import java.io.FileReader;
+import java.util.Properties;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -34,18 +37,27 @@ public class Main {
 		server.join();
 	}
 	
-	private static Configuration parseConfig(String[] args) {
-		Configuration config = new Configuration();
-		config.port = 8081;
+	private static Configuration parseConfig(String[] args) throws Exception {
+		Properties props = new Properties();
+		props.load(new FileReader(args[0]));
 		
+		Configuration config = new Configuration();
+		
+		String portStr = props.getProperty("port");
+		config.port = portStr != null ? Integer.parseInt(portStr) : 8080;
+
 		config.dconfig = new DynamicConfiguration();
-		config.dconfig.pathSpec = "/dyn/*";
-		config.dconfig.loadLocations.add("../sodejs-core/");
-		config.dconfig.loadLocations.add("../fail/dynamic/");
+		config.dconfig.pathSpec = props.getProperty("d.pathSpec");
+		for(Object o : props.keySet()) {
+			String prop = (String) o;
+			if(prop.startsWith("d.loadLocations.")) {
+				config.dconfig.loadLocations.add(props.getProperty(prop));
+			}
+		}
 		
 		config.sconfig = new StaticConfiguration();
-		config.sconfig.base = "../fail/static";
-		config.sconfig.welcome = "index.html";
+		config.sconfig.base = props.getProperty("s.base");
+		config.sconfig.welcome = props.getProperty("s.welcome");
 		
 		return config;
 	}
