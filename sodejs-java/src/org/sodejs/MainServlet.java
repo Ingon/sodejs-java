@@ -54,6 +54,7 @@ public class MainServlet extends HttpServlet {
 		} catch(Exception exc) {
 			exc.printStackTrace();
 		} finally {
+			modules.clear();
 			Context.exit();
 		}
 	}
