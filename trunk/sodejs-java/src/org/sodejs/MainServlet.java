@@ -44,11 +44,12 @@ public class MainServlet extends HttpServlet {
 			ScriptableObject.putProperty(obj, "_req", req);
 			ScriptableObject.putProperty(obj, "_res", resp);
 			
-			for(String folder : config.dconfig.loadLocations) {
-				evalJsFolder(ctx, obj, folder);
-			}
-			
-			ctx.evaluateString(obj, "service();", "service", 0, null);
+//			for(String folder : config.dconfig.libLocations) {
+//				evalJsFolder(ctx, obj, folder);
+//			}
+//			
+//			ctx.evaluateString(obj, "service();", "service", 0, null);
+			ctx.evaluateReader(obj, new FileReader(config.dconfig.main), config.dconfig.main, 0, null);
 		} finally {
 			ctx.exit();
 		}
