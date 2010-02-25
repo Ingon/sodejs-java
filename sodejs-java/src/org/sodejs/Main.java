@@ -48,10 +48,11 @@ public class Main {
 
 		config.dconfig = new DynamicConfiguration();
 		config.dconfig.pathSpec = props.getProperty("d.pathSpec");
+		config.dconfig.main = props.getProperty("d.main");
 		for(Object o : props.keySet()) {
 			String prop = (String) o;
-			if(prop.startsWith("d.loadLocations.")) {
-				config.dconfig.loadLocations.add(props.getProperty(prop));
+			if(prop.startsWith("d.libLocation.")) {
+				config.dconfig.libLocations.add(props.getProperty(prop));
 			}
 		}
 		
