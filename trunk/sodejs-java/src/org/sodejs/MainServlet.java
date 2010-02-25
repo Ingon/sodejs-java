@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,6 +20,7 @@ public class MainServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private final Configuration config;
+	private final Map<String, Module> modules = new HashMap<String, Module>();
 	
 	public MainServlet(Configuration config) {
 		this.config = config;
@@ -41,29 +44,48 @@ public class MainServlet extends HttpServlet {
 		try {
 			ScriptableObject obj = ctx.initStandardObjects();
 			
+			ScriptableObject.putProperty(obj, "require", new RequireFunction(this));
+			preInitializeModules(obj);
+			
 			ScriptableObject.putProperty(obj, "_req", req);
 			ScriptableObject.putProperty(obj, "_res", resp);
 			
-//			for(String folder : config.dconfig.libLocations) {
-//				evalJsFolder(ctx, obj, folder);
-//			}
-//			
-//			ctx.evaluateString(obj, "service();", "service", 0, null);
 			ctx.evaluateReader(obj, new FileReader(config.dconfig.main), config.dconfig.main, 0, null);
+		} catch(Exception exc) {
+			exc.printStackTrace();
 		} finally {
-			ctx.exit();
+			Context.exit();
 		}
 	}
 
-	private void evalJsFolder(Context ctx, ScriptableObject root, String folderPath) throws IOException {
+	private void preInitializeModules(ScriptableObject root) {
+		for(String folder : config.dconfig.libLocations) {
+			preInitializeModule(root, folder);
+		}
+	}
+
+	private void preInitializeModule(ScriptableObject root, String folderPath) {
 		File mainFolder = new File(folderPath);
 		File[] jsFiles = mainFolder.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".js");
 			}});
 		
-		for(File jsFile : jsFiles) { // TODO modules?
-			ctx.evaluateReader(root, new FileReader(jsFile), jsFile.getName(), 0, null);
+		for(File jsFile : jsFiles) {
+			Module m = new Module(root, jsFile);
+			if(modules.containsKey(m.getName())) {
+				throw new UnsupportedOperationException("Module with same name already exists, implement hierarchical modules");
+			}
+			modules.put(m.getName(), m);
 		}
+	}
+
+	public ScriptableObject require(String moduleName) {
+		Module module = modules.get(moduleName);
+		if(module == null) {
+			throw new RuntimeException("Module " + moduleName + " does not exists");
+		}
+		
+		return module.load();
 	}
 }
