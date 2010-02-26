@@ -12,8 +12,10 @@ import org.eclipse.jetty.servlet.ServletHolder;
 
 public class Main {
 	public static void main(String[] args) throws Exception {
-		Configuration config = parseConfig(args);
-		
+		main(parseConfig(args));
+	}
+	
+	public static void main(Configuration config) throws Exception {
 		Server server = new Server(config.port);
 		HandlerList handlers = new HandlerList();
 		
