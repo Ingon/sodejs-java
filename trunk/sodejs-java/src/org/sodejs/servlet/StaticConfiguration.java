@@ -1,4 +1,4 @@
-package org.sodejs;
+package org.sodejs.servlet;
 
 public class StaticConfiguration {
 	public String base;

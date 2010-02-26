@@ -1,4 +1,4 @@
-package org.sodejs;
+package org.sodejs.servlet;
 
 import java.io.FileReader;
 import java.util.Properties;
