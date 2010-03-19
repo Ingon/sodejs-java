@@ -8,34 +8,67 @@ import java.util.Map;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 
 public class Js {
 	private final JsConfiguration config;
 	private final Map<String, Module> modules = new HashMap<String, Module>();
+	
+	private ScriptableObject scope;
+	private Script script;
+	private Function main;
 
 	public Js(JsConfiguration config) {
 		this.config = config;
+		init();
 	}
 	
+	private void init() {
+		Context ctx = ContextFactory.getGlobal().enterContext();
+		ctx.setOptimizationLevel(9);
+		
+		try {
+			scope = ctx.initStandardObjects();
+			
+			ScriptableObject.putProperty(scope, "require", new RequireFunction(this));
+			preInitializeModules(scope);
+			
+			script = ctx.compileReader(new FileReader(config.main), config.main, 0, null);
+			script.exec(ctx, scope);
+			
+			main = (Function) ScriptableObject.getProperty(scope, "mainExecute");
+		} catch(Exception exc) {
+			throw new RuntimeException(exc);
+		} finally {
+			Context.exit();
+		}
+	}
+
 	public void execute(Map<String, Object> dynamicVariables) {
 		Context ctx = ContextFactory.getGlobal().enterContext();
 		
 		try {
-			ScriptableObject obj = ctx.initStandardObjects();
-			
-			ScriptableObject.putProperty(obj, "require", new RequireFunction(this));
-			preInitializeModules(obj);
+//			ScriptableObject obj = ctx.initStandardObjects();
+//			
+//			ScriptableObject.putProperty(obj, "require", new RequireFunction(this));
+//			preInitializeModules(obj);
+//			
+//			for(Map.Entry<String, Object> var : dynamicVariables.entrySet()) {
+//				ScriptableObject.putProperty(obj, var.getKey(), var.getValue());
+//			}
+//			
+//			ctx.evaluateReader(obj, new FileReader(config.main), config.main, 0, null);
 			
 			for(Map.Entry<String, Object> var : dynamicVariables.entrySet()) {
-				ScriptableObject.putProperty(obj, var.getKey(), var.getValue());
+				ScriptableObject.putProperty(scope, var.getKey(), var.getValue());
 			}
 			
-			ctx.evaluateReader(obj, new FileReader(config.main), config.main, 0, null);
+			main.call(ctx, scope, null, new Object[0]);
 		} catch(Exception exc) {
 			exc.printStackTrace();
 		} finally {
-			modules.clear();
 			Context.exit();
 		}
 	}
