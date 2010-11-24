@@ -7,4 +7,5 @@ public class JsConfig {
     public String mainModule;
     public String mainFunction;
     public List<String> libs = new ArrayList<String>();
+    public boolean precompile;
 }

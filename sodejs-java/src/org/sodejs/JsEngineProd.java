@@ -33,7 +33,7 @@ public class JsEngineProd implements JsEngine {
 
     public void init(Map<String, Object> constants) {
         Context ctx = ContextFactory.getGlobal().enterContext();
-        ctx.setOptimizationLevel(-1);
+        ctx.setOptimizationLevel(config.precompile ? 9 : -1);
 
         try {
             scope = ctx.initStandardObjects();
@@ -92,9 +92,9 @@ public class JsEngineProd implements JsEngine {
         for (File jsFile : jsFiles) {
             JsModule module = null;
             if (jsFile.getName().endsWith("js")) {
-                module = new JsModule(root, jsFile);
+                module = new JsModule(root, jsFile, config.precompile);
             } else if (jsFile.getName().endsWith("xml")) {
-                module = new JsE4XModule(root, jsFile);
+                module = new JsE4XModule(root, jsFile, config.precompile);
             } else {
                 throw new RuntimeException("Unknown extension");
             }
