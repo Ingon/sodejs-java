@@ -11,7 +11,7 @@ public class JsRun {
         config.mainFunction = "main";
         
         List<String> params = new ArrayList<String>();
-        for(int i = 0; i < args.length; i++) {
+        for(int i = 0; i < args.length; i++) { // XXX a bit ugly, try and fix
         	if("--main-module".equals(args[i])) {
         		config.mainModule = args[i + 1];
         		i++;
@@ -19,6 +19,11 @@ public class JsRun {
         	}
         	if("--main-function".equals(args[i])) {
         		config.mainModule = args[i + 1];
+        		i++;
+        		continue;
+        	}
+        	if("--lib".equals(args[i])) {
+        		config.libs.add(args[i + 1]);
         		i++;
         		continue;
         	}
