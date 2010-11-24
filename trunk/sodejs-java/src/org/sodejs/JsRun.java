@@ -18,7 +18,7 @@ public class JsRun {
         		continue;
         	}
         	if("--main-function".equals(args[i])) {
-        		config.mainModule = args[i + 1];
+        		config.mainFunction = args[i + 1];
         		i++;
         		continue;
         	}
