@@ -6,8 +6,8 @@ import java.io.IOException;
 import org.mozilla.javascript.Scriptable;
 
 public class JsE4XModule extends JsModule {
-    public JsE4XModule(Scriptable rootScope, File moduleFile) {
-        super(rootScope, moduleFile);
+    public JsE4XModule(Scriptable rootScope, File moduleFile, boolean precompile) {
+        super(rootScope, moduleFile, precompile);
     }
 
     @Override
