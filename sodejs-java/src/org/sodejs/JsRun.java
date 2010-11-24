@@ -1,18 +1,33 @@
 package org.sodejs;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JsRun {
     public static void main(final String[] args) {
         JsConfig config = new JsConfig();
         
-        config.mainModule = args[0];
+        config.mainModule = "main.js";
         config.mainFunction = "main";
         
+        List<String> params = new ArrayList<String>();
+        for(int i = 0; i < args.length; i++) {
+        	if("--main-module".equals(args[i])) {
+        		config.mainModule = args[i + 1];
+        		i++;
+        		continue;
+        	}
+        	if("--main-function".equals(args[i])) {
+        		config.mainModule = args[i + 1];
+        		i++;
+        		continue;
+        	}
+        	
+        	params.add(args[i]);
+        }
+        
         JsEngine engine = new JsEngineDev(config);
-        engine.init(new HashMap<String, Object>(){{
-            put("args", args);
-        }});
-        engine.execute();
+        engine.init(); // TODO something to setup these from command line?
+        engine.execute(params.toArray());
     }
 }
