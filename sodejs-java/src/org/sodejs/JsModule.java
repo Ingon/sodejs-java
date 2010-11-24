@@ -48,6 +48,7 @@ public class JsModule {
         }
 
         Context ctx = Context.getCurrentContext();
+        ctx.setOptimizationLevel(precompile ? 9 : -1); // XXX some problem in rhino ?
 
         Scriptable obj = ctx.newObject(rootScope);
         obj.setPrototype(rootScope);
